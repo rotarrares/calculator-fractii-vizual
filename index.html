@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator de Fracții Vizual</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #4b0082;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .calculator {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+        }
+        
+        .input-section {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .fraction-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .fraction-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            background-color: #e6f7ff;
+            border-radius: 10px;
+        }
+        
+        input[type="number"] {
+            width: 60px;
+            padding: 8px;
+            font-size: 18px;
+            text-align: center;
+            border: 2px solid #4b0082;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        
+        .fraction-line {
+            width: 60px;
+            height: 2px;
+            background-color: #4b0082;
+            margin: 5px 0;
+        }
+        
+        select {
+            width: 120px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #4b0082;
+            border-radius: 5px;
+            background-color: #e6e6fa;
+            margin: 15px;
+            align-self: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4b0082;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #6a0dad;
+        }
+        
+        .visualization-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .visual-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .fraction-visual {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+        
+        .operation-symbol {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 10px;
+            align-self: center;
+        }
+        
+        .result-box {
+            background-color: #e6ffe6;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .result-fraction {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4b0082;
+        }
+        
+        .steps-explanation {
+            margin-top: 20px;
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculator de Fracții Vizual</h1>
+    
+    <div class="calculator">
+        <div class="input-section">
+            <div class="fraction-input">
+                <h3>Prima fracție</h3>
+                <div class="fraction-box">
+                    <input type="number" id="num1" min="0" max="10" value="1">
+                    <div class="fraction-line"></div>
+                    <input type="number" id="denom1" min="1" max="12" value="2">
+                </div>
+            </div>
+            
+            <select id="operation">
+                <option value="add">+</option>
+                <option value="subtract">-</option>
+            </select>
+            
+            <div class="fraction-input">
+                <h3>A doua fracție</h3>
+                <div class="fraction-box">
+                    <input type="number" id="num2" min="0" max="10" value="1">
+                    <div class="fraction-line"></div>
+                    <input type="number" id="denom2" min="1" max="12" value="3">
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button id="calculate-btn">Calculează</button>
+        </div>
+        
+        <div class="visualization-section">
+            <div class="visual-container">
+                <div class="fraction-visual" id="fraction1-visual"></div>
+                <div class="operation-symbol" id="operation-symbol">+</div>
+                <div class="fraction-visual" id="fraction2-visual"></div>
+                <div class="operation-symbol">=</div>
+                <div class="fraction-visual" id="result-visual"></div>
+            </div>
+            
+            <div class="result-box" id="result-box">
+                <p>Rezultatul este: <span class="result-fraction" id="result-fraction"></span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="steps-explanation" id="steps-explanation"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Selectăm elementele din DOM
+            const num1Input = document.getElementById('num1');
+            const denom1Input = document.getElementById('denom1');
+            const num2Input = document.getElementById('num2');
+            const denom2Input = document.getElementById('denom2');
+            const operationSelect = document.getElementById('operation');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const fraction1Visual = document.getElementById('fraction1-visual');
+            const fraction2Visual = document.getElementById('fraction2-visual');
+            const resultVisual = document.getElementById('result-visual');
+            const operationSymbol = document.getElementById('operation-symbol');
+            const resultBox = document.getElementById('result-box');
+            const resultFraction = document.getElementById('result-fraction');
+            const stepsExplanation = document.getElementById('steps-explanation');
+            
+            // Schimbăm simbolul operației când se schimbă selecția
+            operationSelect.addEventListener('change', function() {
+                operationSymbol.textContent = this.value === 'add' ? '+' : '-';
+            });
+            
+            // Funcția pentru a desena o fracție ca un cerc împărțit
+            function drawFractionCircle(container, numerator, denominator, color = '#4b0082') {
+                container.innerHTML = '';
+                
+                // Creăm un element SVG
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('width', '100%');
+                svg.setAttribute('height', '100%');
+                svg.setAttribute('viewBox', '0 0 100 100');
+                
+                // Desenăm cercul exterior
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', '50');
+                circle.setAttribute('cy', '50');
+                circle.setAttribute('r', '45');
+                circle.setAttribute('stroke', color);
+                circle.setAttribute('stroke-width', '2');
+                circle.setAttribute('fill', 'white');
+                svg.appendChild(circle);
+                
+                // Împărțim cercul în părți egale (denumitorul)
+                if (denominator > 0) {
+                    const angleStep = 360 / denominator;
+                    
+                    // Desenăm liniile de separare
+                    for (let i = 0; i < denominator; i++) {
+                        const angle = i * angleStep;
+                        const radians = (angle - 90) * Math.PI / 180;
+                        const x2 = 50 + 45 * Math.cos(radians);
+                        const y2 = 50 + 45 * Math.sin(radians);
+                        
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', '50');
+                        line.setAttribute('y1', '50');
+                        line.setAttribute('x2', x2);
+                        line.setAttribute('y2', y2);
+                        line.setAttribute('stroke', color);
+                        line.setAttribute('stroke-width', '1');
+                        svg.appendChild(line);
+                    }
+                    
+                    // Colorăm părțile corespunzătoare numărătorului
+                    for (let i = 0; i < Math.min(numerator, denominator); i++) {
+                        const startAngle = i * angleStep - 90;
+                        const endAngle = (i + 1) * angleStep - 90;
+                        
+                        const startX = 50 + 45 * Math.cos(startAngle * Math.PI / 180);
+                        const startY = 50 + 45 * Math.sin(startAngle * Math.PI / 180);
+                        const endX = 50 + 45 * Math.cos(endAngle * Math.PI / 180);
+                        const endY = 50 + 45 * Math.sin(endAngle * Math.PI / 180);
+                        
+                        // Folosim un arc pentru a desena un sector de cerc
+                        const largeArcFlag = angleStep > 180 ? 1 : 0;
+                        
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        path.setAttribute('d', `M 50 50 L ${startX} ${startY} A 45 45 0 ${largeArcFlag} 1 ${endX} ${endY} Z`);
+                        path.setAttribute('fill', '#b19cd9');
+                        svg.appendChild(path);
+                    }
+                }
+                
+                // Adăugăm text pentru a afișa fracția
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', '50');
+                text.setAttribute('y', '115');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', color);
+                text.setAttribute('font-size', '14');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = `${numerator}/${denominator}`;
+                svg.appendChild(text);
+                
+                container.appendChild(svg);
+            }
+            
+            // Funcția pentru calcularea celui mai mare divizor comun (cmmdc)
+            function gcd(a, b) {
+                return b === 0 ? a : gcd(b, a % b);
+            }
+            
+            // Funcția pentru simplificarea unei fracții
+            function simplifyFraction(numerator, denominator) {
+                const divisor = gcd(numerator, denominator);
+                return {
+                    numerator: numerator / divisor,
+                    denominator: denominator / divisor
+                };
+            }
+            
+            // Funcția pentru adunarea a două fracții
+            function addFractions(num1, denom1, num2, denom2) {
+                // Găsim numitorul comun
+                const lcm = (denom1 * denom2) / gcd(denom1, denom2);
+                
+                // Convertim fracțiile la același numitor
+                const newNum1 = num1 * (lcm / denom1);
+                const newNum2 = num2 * (lcm / denom2);
+                
+                // Adunăm numărătorii
+                const resultNum = newNum1 + newNum2;
+                
+                // Simplificăm rezultatul
+                return simplifyFraction(resultNum, lcm);
+            }
+            
+            // Funcția pentru scăderea a două fracții
+            function subtractFractions(num1, denom1, num2, denom2) {
+                // Găsim numitorul comun
+                const lcm = (denom1 * denom2) / gcd(denom1, denom2);
+                
+                // Convertim fracțiile la același numitor
+                const newNum1 = num1 * (lcm / denom1);
+                const newNum2 = num2 * (lcm / denom2);
+                
+                // Scădem numărătorii
+                const resultNum = newNum1 - newNum2;
+                
+                // Simplificăm rezultatul
+                return simplifyFraction(resultNum, lcm);
+            }
+            
+            // Funcția pentru generarea explicației pașilor de calcul
+            function generateExplanation(num1, denom1, num2, denom2, operation, result) {
+                const lcm = (denom1 * denom2) / gcd(denom1, denom2);
+                const newNum1 = num1 * (lcm / denom1);
+                const newNum2 = num2 * (lcm / denom2);
+                
+                let explanation = '<h3>Pașii de calcul:</h3>';
+                explanation += '<ol>';
+                
+                // Pasul 1: Găsirea numitorului comun
+                explanation += '<li><strong>Găsim numitorul comun:</strong> ';
+                if (denom1 === denom2) {
+                    explanation += `Ambele fracții au același numitor (${denom1}), deci îl vom folosi.`;
+                } else {
+                    explanation += `Cel mai mic multiplu comun al lui ${denom1} și ${denom2} este ${lcm}.`;
+                }
+                explanation += '</li>';
+                
+                // Pasul 2: Transformarea fracțiilor
+                if (denom1 !== lcm || denom2 !== lcm) {
+                    explanation += '<li><strong>Transformăm fracțiile pentru a avea același numitor:</strong>';
+                    explanation += '<ul>';
+                    if (denom1 !== lcm) {
+                        explanation += `<li>${num1}/${denom1} = (${num1} × ${lcm/denom1})/${lcm} = ${newNum1}/${lcm}</li>`;
+                    }
+                    if (denom2 !== lcm) {
+                        explanation += `<li>${num2}/${denom2} = (${num2} × ${lcm/denom2})/${lcm} = ${newNum2}/${lcm}</li>`;
+                    }
+                    explanation += '</ul></li>';
+                }
+                
+                // Pasul 3: Efectuarea operației
+                explanation += `<li><strong>${operation === 'add' ? 'Adunăm' : 'Scădem'} numărătorii:</strong> `;
+                if (operation === 'add') {
+                    explanation += `${newNum1} + ${newNum2} = ${newNum1 + newNum2}`;
+                } else {
+                    explanation += `${newNum1} - ${newNum2} = ${newNum1 - newNum2}`;
+                }
+                explanation += '</li>';
+                
+                // Pasul 4: Simplificarea rezultatului (dacă e cazul)
+                const beforeSimplify = operation === 'add' ? (newNum1 + newNum2) : (newNum1 - newNum2);
+                if (beforeSimplify !== result.numerator || lcm !== result.denominator) {
+                    const divisor = gcd(Math.abs(beforeSimplify), lcm);
+                    explanation += `<li><strong>Simplificăm rezultatul:</strong> ${beforeSimplify}/${lcm} = ${result.numerator}/${result.denominator} `;
+                    explanation += `(împărțind numărătorul și numitorul la ${divisor})`;
+                    explanation += '</li>';
+                }
+                
+                explanation += '</ol>';
+                return explanation;
+            }
+            
+            // Funcția principală care se execută la click pe butonul de calcul
+            calculateBtn.addEventListener('click', function() {
+                // Preluăm valorile din inputuri
+                const num1 = parseInt(num1Input.value) || 0;
+                const denom1 = parseInt(denom1Input.value) || 1;
+                const num2 = parseInt(num2Input.value) || 0;
+                const denom2 = parseInt(denom2Input.value) || 1;
+                const operation = operationSelect.value;
+                
+                // Verificăm dacă valorile sunt valide
+                if (denom1 === 0 || denom2 === 0) {
+                    alert('Numitorul nu poate fi zero!');
+                    return;
+                }
+                
+                // Desenăm reprezentările vizuale ale fracțiilor
+                drawFractionCircle(fraction1Visual, num1, denom1, '#4b0082');
+                drawFractionCircle(fraction2Visual, num2, denom2, '#4b0082');
+                
+                // Calculăm rezultatul în funcție de operație
+                let result;
+                if (operation === 'add') {
+                    result = addFractions(num1, denom1, num2, denom2);
+                } else {
+                    result = subtractFractions(num1, denom1, num2, denom2);
+                }
+                
+                // Afișăm rezultatul
+                resultBox.style.display = 'block';
+                resultFraction.textContent = `${result.numerator}/${result.denominator}`;
+                
+                // Desenăm reprezentarea vizuală a rezultatului
+                drawFractionCircle(resultVisual, result.numerator, result.denominator, '#009900');
+                
+                // Generăm și afișăm explicația
+                stepsExplanation.innerHTML = generateExplanation(num1, denom1, num2, denom2, operation, result);
+                stepsExplanation.style.display = 'block';
+            });
+            
+            // Inițializăm cu valorile implicite
+            drawFractionCircle(fraction1Visual, 1, 2, '#4b0082');
+            drawFractionCircle(fraction2Visual, 1, 3, '#4b0082');
+            drawFractionCircle(resultVisual, 5, 6, '#009900');
+        });
+    </script>
+</body>
+</html>
